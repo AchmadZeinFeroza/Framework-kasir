@@ -31,13 +31,7 @@
             <td>{{$penjualan->jumlah_barang}}</td>
             <td>{{$penjualan->total_harga}}</td>
            </tr>
-           @endforeach
-           <tr>
-              <td colspan="2">Total</td>
-              <td>{{$total_barang}}</td>
-              <td>{{$total_penjualan}}</td>
-            </tr>
-
+           @endforeach	
 	</table>
  
 </body>

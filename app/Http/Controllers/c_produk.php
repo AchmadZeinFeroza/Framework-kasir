@@ -15,7 +15,7 @@ class c_produk extends Controller
      */
     public function index()
     {
-        $data = m_produk::get();
+        $data = m_produk::paginate(8);
         return view('produk' , ['data' => $data]);
     }
 
@@ -36,14 +36,18 @@ class c_produk extends Controller
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
-    {
+    {   
+        $request->validate([
+            'stok' => 'required|numeric|min:0',
+            'harga' => 'required|numeric|min:0'
+        ]);
         $data = new m_produk;
         $data->nama = $request['nama'];
         $data->kategori = $request['kategori'];
         $data->stok = $request['stok'];
         $data->harga = $request['harga'];
         $data->save();
-        $data = m_produk::get();
+        $data = m_produk::paginate(8);
         return view('produk', ['data' => $data]);
     }
 
@@ -53,9 +57,10 @@ class c_produk extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show($kategori)
     {
-        //
+        $data = m_produk::where('kategori', $kategori)->first();
+        return response()->json($data);
     }
 
     /**
@@ -84,7 +89,7 @@ class c_produk extends Controller
         $data->stok = $request['stok'];
         $data->harga = $request['harga'];
         $data->save();
-        $data = m_produk::get();
+        $data = m_produk::paginate(8);
         return view('produk', ['data' => $data]);
     }
 
@@ -99,7 +104,7 @@ class c_produk extends Controller
     {
         $data = m_produk::find($id);
         $data->delete();
-        $data = m_produk::get();
+        $data = m_produk::paginate(8);
         return view('produk', ['data' => $data]);
     }
 }

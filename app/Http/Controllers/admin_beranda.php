@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\models\m_produk;
+use App\models\m_penjualan;
 
 class admin_beranda extends Controller
 {
@@ -13,7 +15,9 @@ class admin_beranda extends Controller
      */
     public function index()
     {
-        return view('admin/index');
+        $data = m_produk::get();
+        $penjualan = m_penjualan::get();
+        return view('admin/index', compact('data', 'penjualan'));
     }
 
     /**

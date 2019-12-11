@@ -12,7 +12,7 @@
 */
 
 Auth::routes();
-Route::group(['middleware' => ['auth','roles']] , function(){
+Route::group(['middleware' => ['auth','roles','web']] , function(){
     Route::group(['roles'=>'admin'],function(){
         Route::resource('/admin' , 'admin_beranda');
         Route::get('/home', 'HomeController@index')->name('home');

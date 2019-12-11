@@ -5,6 +5,7 @@
 <div class="content-wrapper">
   <!-- Content Header (Page header) -->
   <div class="container" style="height: 100vh;">
+      
     <div class="input-group" style="margin-top: 3%;">
       <input type="text" class="form-control" placeholder="Pilih Produk" id="search">
       <span class="input-group-btn">
@@ -14,7 +15,13 @@
     </div>
     <div class="justify-content-center" style="margin-top: 3%;">
       <div class="wthreeproductdisplay" id="list-cart">
-          <div class="form-group" style="padding:0%; margin:0;">
+          @if($error)
+            <div class="alert alert-danger alert-block">
+            <button type="button" class="close" data-dismiss="alert">×</button>	
+            <strong style="color:white;">Kesalahan dalam melakukan transaksi !!</strong>
+            </div>
+          @endif  
+        <div class="form-group" style="padding:0%; margin:0;">
               <ul class=" col-md-12">
                 <li class="col-md-3"><h3>Nama</h3></li>
                 <li class="col-md-3"><h3>Harga</h3></li>
@@ -23,6 +30,7 @@
               </ul>
             <div class="clear"></div>
           </div>
+        
         @foreach ($data as $produk)
       
             <div class="form-group x" id="{{$produk->id_produk}}" style="padding:0%; margin:0; margin-top: 1%;">
@@ -48,6 +56,10 @@
         </div>
       </div>		
   <!-- /.content -->
+  <div style="float:right;">
+    {{$data->links()}}
+  </div>
+
 </div>
 <div class="fixed-bottom" style="position:fixed; bottom:0; padding-left: 3%; padding-bottom: 2%; width: 15%;">
     <div class="wthreecartaits wthreecartaits2 cart cart box_1">
@@ -84,13 +96,13 @@
 <script src="{{asset('shopping-cart/js/minicart.min.js')}}"></script>
 <script>
   // Mini Cart
+  $(document).ready(function(){ 
+      paypal1.minicart1.reset();
+    });
   paypal1.minicart1.render({ //use only unique class names other than paypal1.minicart1.Also Replace same class name in css and minicart.min.js
     action: '#'
   });
-
-  if (~window.location.search.indexOf('reset=true')) {
-    paypal1.minicart1.reset();
-  }
+  
 </script>
 <script type="text/javascript">
   $('#search').on('keyup', function () {

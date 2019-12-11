@@ -10,21 +10,25 @@
       <table class="table table-bordered table-hover col-md-12" style="border : 1px solid black;">
           <tr>
             <th>Tanggal</th>
-            <th>Jam</th>
             <th>Produk</th>
             <th>Jumlah Barang</th>
             <th>Total</th>
           </tr>
           @foreach($data as $penjualan)
           <tr>
-            <td>{{$penjualan->created_at}}</td>
-            <td>{{$penjualan->created_at}}</td>
+            <td>{{$penjualan->created_at->format('Y-m-d')}}</td>
             <td>{{$penjualan->nama_produk}}</td>
             <td>{{$penjualan->jumlah_barang}}</td>
             <td>{{$penjualan->total_harga}}</td>
            </tr>
            @endforeach
+           <tr>
+              <td colspan="2">Total</td>
+              <td>{{$total_barang}}</td>
+              <td>{{$total_penjualan}}</td>
+            </tr>
       </table>
+      {{$data->links()}}	
     <a href="{{route('penjualan.create')}}" class="btn btn-success" onclick="Swal.fire('Data Berhasil Di Download', 'Mantap' , 'success')">Cetak</a>
     </div>
   </div>

@@ -14,8 +14,9 @@ class c_pembayaran extends Controller
      */
     public function index()
     {
-        $data = m_produk::get();
-        return view('pembayaran', compact('data'));
+        $data = m_produk::paginate(8);
+        $error = false;
+        return view('pembayaran', compact('data', 'error'));
     }
 
     /**

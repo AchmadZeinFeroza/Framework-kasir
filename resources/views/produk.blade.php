@@ -7,9 +7,8 @@
   <section class="content-header">
     <h1>
       Stok Barang
-      <small>preview of simple tables</small>
     </h1>
-  </section>
+    
 
   <!-- Main content -->
   <section class="content">
@@ -17,6 +16,18 @@
       <div class="col-xs-12">
         <div class="box">
           <div class="box-header">
+              @if ($errors->any())
+              <div class="alert alert-danger alert-dismissible ">
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+                <ul>
+                  @foreach ($errors->all() as $error)
+                  <li>{{ $error }}</li>
+                  @endforeach
+                </ul>
+              </div>
+              @endif
             <button type="button" class="btn btn-success" data-toggle="modal"
               data-target="#exampleModal">Tambah</button>
             <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
@@ -34,11 +45,11 @@
                       {{csrf_field()}}
                       <div class="form-group">
                         <label for="kategori">Kategori</label>
-                        <select class="form-control" id="lahan" name="kategori">
-                          <option>-- Pilih Kategori --</option>
-                          <option value="1">Pupuk</option>
-                          <option value="2">Obat</option>
-                        </select>
+                        <select class="form-control" class="form-kategori" name="kategori">
+                          <option value="">--Pilih Kategori--</option>
+                          <option value="pupuk">pupuk</option>
+                          <option value="obat">obat</option>
+                      </select>
                       </div>
                       <div class="form-group">
                         <label for="nama">Nama nama</label>
@@ -62,11 +73,13 @@
               </div>
             </div>
             <div class="col-md-4">
-              <select class="form-control" id="lahan" name="id_lahan">
-                <option>-- Semua --</option>
-                <option value="pupuk">Pupuk</option>
-                <option value="obat">Obat</option>
-              </select>
+              <form method="get">
+                <select class="form-control" class="form-kategori" id="combo">
+                    <option value="">--Pilih Kategori--</option>
+                    <option value="pupuk">pupuk</option>
+                    <option value="obat">obat</option>
+                </select>
+              </form>
             </div>
             <div class="box-tools">
               <div class="input-group input-group-sm hidden-xs" style="width: 150px;">
@@ -93,8 +106,8 @@
               $i=0;
               @endphp
               @foreach($data as $produk)
-              <tr>
-                <td>{{$produk->id_produk}}</td>
+            <tr class="{{$produk->kategori}}">
+                <td>{{$i+1}}</td>
                 <td>{{$produk->nama}}</td>
                 <td>{{$produk->kategori}}</td>
                 <td>
@@ -184,15 +197,52 @@
               @endphp
               @endforeach
             </table>
-
+            {{$data->links()}}
           </div>
           <!-- /.box-body -->
         </div>
         <!-- /.box -->
       </div>
     </div>
+    
+ 
   </section>
   <!-- /.content -->
 </div>
 <!-- /.content-wrapper -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script><script>
+$(document).ready(function(){ 
+  $('#combo').change(function(){ 
+      var kategori = $('#combo :selected').text();
+      var updateurl = "{{url('produk')}}" + '/' + kategori;
+      $('.form-kategori').attr('action', updateurl);
+      $.ajaxSetup({
+        headers: {
+          'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        }
+      });
+
+      $.ajax({
+        type: "GET",
+        dataType: 'json',
+        url: updateurl,
+        data: { '_token': $('input[name=_token]').val() },
+        success: function (data) {
+          if(data.kategori == 'pupuk'){
+            $('.pupuk').show();
+            $('.obat').hide();
+          }else if(data.kategori == 'obat'){
+            $('.pupuk').hide();
+            $('.obat').show();
+          }else{
+            $('.pupuk').show();
+            $('.obat').show();
+          }
+        }
+      }).done(function (data) {
+        console.log('suksess');
+      });
+  });
+});
+</script>
 @endsection

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\models\m_penjualan;
+use PDF;
 
 class penjualan_admin extends Controller
 {
@@ -14,7 +15,7 @@ class penjualan_admin extends Controller
      */
     public function index()
     {
-        $data = m_penjualan::get();
+        $data = m_penjualan::paginate(10);
         return view('admin/penjualan-admin', compact('data'));
     }
 
@@ -25,7 +26,9 @@ class penjualan_admin extends Controller
      */
     public function create()
     {
-        //
+        $data = m_penjualan::get();    
+        $pdf = PDF::loadview('penjualanpdf',compact('data'));
+    	return $pdf->download('laporan-penjualan1-pdf.pdf');
     }
 
     /**
@@ -36,7 +39,10 @@ class penjualan_admin extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $x = $request['waktu'];
+        $data = m_penjualan::where('created_at' , $x)->get();
+        return view('admin/penjualan-admin', compact('data'));
+
     }
 
     /**
@@ -48,6 +54,9 @@ class penjualan_admin extends Controller
     public function show($id)
     {
         //
+    }
+    public function tampilkan(Request $request){
+     
     }
 
     /**

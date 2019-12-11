@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\models\m_penjualan;
 use App\models\m_produk;
 use PDF;
+use Carbon\Carbon;
 
 class c_penjualan extends Controller
 {
@@ -15,9 +16,24 @@ class c_penjualan extends Controller
      * @return \Illuminate\Http\Response
      */
     public function index()
-    {
+    {   
+        // $x= $data->created_at->toDateTimeString('Y-m-d');
+        // date
+        $x = date('Y-m-d');
+        $total_penjualan = 0;
+        $total_barang = 0;
         $data = m_penjualan::get();
-        return view('penjualan', compact('data'));
+        foreach($data as $time){
+            $y= $time->created_at->format('Y-m-d');
+            $time->created_at = $y;
+            $time->save();
+        }
+        $data = m_penjualan::where('created_at' , $x)->paginate(8);
+        foreach($data as $datas){
+            $total_penjualan += $datas->total_harga;
+            $total_barang += $datas->jumlah_barang;
+        }
+        return view('penjualan', compact('data','total_penjualan','total_barang'));
     }
 
     /**
@@ -32,8 +48,21 @@ class c_penjualan extends Controller
     }
     public function create()
     {
-        $data = m_penjualan::get();    
-        $pdf = PDF::loadview('penjualanpdf',compact('data'));
+        $x = date('Y-m-d');
+        $total_penjualan = 0;
+        $total_barang = 0;
+        $data = m_penjualan::get();
+        foreach($data as $time){
+            $y= $time->created_at->format('Y-m-d');
+            $time->created_at = $y;
+            $time->save();
+        }
+        $data = m_penjualan::where('created_at' , $x)->get(); 
+        foreach($data as $datas){
+            $total_penjualan += $datas->total_harga;
+            $total_barang += $datas->jumlah_barang;
+        } 
+        $pdf = PDF::loadview('penjualanpdf',compact('data','total_penjualan','total_barang'));
     	return $pdf->download('laporan-penjualan-pdf.pdf');
     }
 
@@ -45,27 +74,51 @@ class c_penjualan extends Controller
      */
     public function store(Request $request)
     {
-        $data = new m_penjualan;
+       
         $x = 0;
         $y = '';
+        $harga = $request['harga'];
         foreach($request['barang'] as $a){
             $x += $a;
         }
         foreach($request['item_name'] as $b){
             $y .= $b;
         }
+        $stokcukup = true;
         for($i=0,$count=count($request['nama_produk']);$i<$count; $i++){
             $produk = m_produk::where('nama' , $request['nama_produk'][$i])->first();
             $stok = ($produk->stok - $request['barang'][$i]);
-            $produk->stok = $stok;
-            $produk->save();
+            if($stok < 0){
+                $stokcukup = false;
+            }
         }
-        $data->nama_produk = $y;
-        $data->jumlah_barang = $x;
-        $data->total_harga = $request['total'];
-        $data->save();
-        $data = m_produk::get();
-        return view('pembayaran', compact('data'));
+    $cekuang = $request['pembayaran'] - $request['total'];
+    if($stokcukup){
+        if($cekuang > 0){
+            for($i=0,$count=count($request['nama_produk']);$i<$count; $i++){
+                $produk = m_produk::where('nama' , $request['nama_produk'][$i])->first();
+                $stok = ($produk->stok - $request['barang'][$i]);
+                $produk->stok = $stok;
+                $produk->save();
+            }
+            $barang = $request['item_name'];
+            $uangdibayar = $request['pembayaran'];
+            $kembalian = $uangdibayar -  $request['total'];
+            $data = new m_penjualan;
+            $data->nama_produk = $y;
+            $data->jumlah_barang = $x;
+            $data->total_harga = $request['total'];
+            $data->save();
+            $totalharga = $request['total'];
+            $data = m_produk::paginate(8);
+            $error = false;
+            $struk = PDF::loadview('struk', compact('x','y','barang','totalharga', 'uangdibayar' , 'kembalian','harga'))->setPaper('a6', 'potrait');
+            return $struk->stream('struk-penjualan.pdf');
+        }
+    }
+        $data = m_produk::paginate(8);
+        $error = true;
+        return view('pembayaran', compact('data' ,'error'));
     }
 
     /**
@@ -99,7 +152,7 @@ class c_penjualan extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        
     }
 
     /**

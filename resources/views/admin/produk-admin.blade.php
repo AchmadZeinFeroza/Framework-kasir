@@ -7,7 +7,6 @@
   <section class="content-header">
     <h1>
       Stok Barang
-      <small>preview of simple tables</small>
     </h1>
   </section>
 
@@ -30,7 +29,7 @@
                     <h3 class="modal-title" id="exampleModalLabel">Tambah Produk</h3>
                   </div>
                   <div class="modal-body">
-                    <form action="{{route('produk.store')}}" method="post">
+                    <form action="{{route('produk_admin.store')}}" method="post">
                       {{csrf_field()}}
                       <div class="form-group">
                         <label for="kategori">Kategori</label>
@@ -62,11 +61,13 @@
               </div>
             </div>
             <div class="col-md-4">
-              <select class="form-control" id="lahan" name="id_lahan">
-                <option>-- Semua --</option>
-                <option value="pupuk">Pupuk</option>
-                <option value="obat">Obat</option>
-              </select>
+              <form method="get">
+                <select class="form-control" class="form-kategori" id="combo">
+                    <option value="">--Pilih Kategori--</option>
+                    <option value="pupuk">pupuk</option>
+                    <option value="obat">obat</option>
+                </select>
+              </form>
             </div>
             <div class="box-tools">
               <div class="input-group input-group-sm hidden-xs" style="width: 150px;">
@@ -93,7 +94,7 @@
               $i=0;
               @endphp
               @foreach($data as $produk)
-              <tr>
+            <tr class="{{$produk->kategori}}">
                 <td>{{$produk->id_produk}}</td>
                 <td>{{$produk->nama}}</td>
                 <td>{{$produk->kategori}}</td>
@@ -182,7 +183,7 @@
               @endphp
               @endforeach
             </table>
-
+            {{$data->links()}}
           </div>
           <!-- /.box-body -->
         </div>
@@ -192,5 +193,40 @@
   </section>
   <!-- /.content -->
 </div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script><script>
+  $(document).ready(function(){ 
+    $('#combo').change(function(){ 
+        var kategori = $('#combo :selected').text();
+        var updateurl = "{{url('produk_admin')}}" + '/' + kategori;
+        $('.form-kategori').attr('action', updateurl);
+        $.ajaxSetup({
+          headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+          }
+        });
+  
+        $.ajax({
+          type: "GET",
+          dataType: 'json',
+          url: updateurl,
+          data: { '_token': $('input[name=_token]').val() },
+          success: function (data) {
+            if(data.kategori == 'pupuk'){
+              $('.pupuk').show();
+              $('.obat').hide();
+            }else if(data.kategori == 'obat'){
+              $('.pupuk').hide();
+              $('.obat').show();
+            }else{
+              $('.pupuk').show();
+              $('.obat').show();
+            }
+          }
+        }).done(function (data) {
+          console.log('suksess');
+        });
+    });
+  });
+  </script>
 <!-- /.content-wrapper -->
 @endsection

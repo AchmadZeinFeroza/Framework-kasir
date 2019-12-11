@@ -14,7 +14,7 @@ class produk_admin extends Controller
      */
     public function index()
     {
-        $data = m_produk::get();
+        $data = m_produk::paginate(8);
         return view('admin/produk-admin' , ['data' => $data]);
     }
 
@@ -36,7 +36,18 @@ class produk_admin extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'stok' => 'required|numeric|min:0',
+            'harga' => 'required|numeric|min:0'
+        ]);
+        $data = new m_produk;
+        $data->nama = $request['nama'];
+        $data->kategori = $request['kategori'];
+        $data->stok = $request['stok'];
+        $data->harga = $request['harga'];
+        $data->save();
+        $data = m_produk::paginate(8);
+        return view('admin/produk-admin', ['data' => $data]);
     }
 
     /**
@@ -45,9 +56,10 @@ class produk_admin extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show($kategori)
     {
-        //
+        $data = m_produk::where('kategori', $kategori)->first();
+        return response()->json($data);
     }
 
     /**
@@ -76,7 +88,7 @@ class produk_admin extends Controller
         $data->stok = $request['stok'];
         $data->harga = $request['harga'];
         $data->save();
-        $data = m_produk::get();
+        $data = m_produk::paginate(8);
         return view('admin/produk-admin' , ['data' => $data]);
     }
 
@@ -90,7 +102,7 @@ class produk_admin extends Controller
     {
         $data = m_produk::find($id);
         $data->delete();
-        $data = m_produk::get();
+        $data = m_produk::paginate(8);
         return view('admin/produk-admin' , ['data' => $data]);
     }
 }
